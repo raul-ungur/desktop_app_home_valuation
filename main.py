@@ -5,11 +5,13 @@ from PySide6.QtGui import QFont
 
 import sys
 
+
 app = QApplication(sys.argv)
 window = QWidget()
 
 window.setWindowTitle("My PySide6 App")
 window.setGeometry(550, 300, 400, 300)
+
 
 layout = QVBoxLayout()
 layout.setAlignment(Qt.AlignCenter)
@@ -24,7 +26,6 @@ label_square = QLabel("Square meters:", window)
 
 input_square = QLineEdit()
 input_square.setPlaceholderText("Enter square meters")
-
 
 
 label_rooms = QLabel("Rooms:", window)
@@ -44,7 +45,6 @@ input_garage = QLineEdit()
 input_garage.setPlaceholderText("Enter (yes/no) if there is a garage")
 
 
-
 layout.addWidget(label_title)
 layout.addWidget(label_square)
 layout.addWidget(input_square)
@@ -54,6 +54,14 @@ layout.addWidget(label_bathrooms)
 layout.addWidget(input_bathrooms)
 layout.addWidget(label_garage)
 layout.addWidget(input_garage)
+
+
+house_info = {
+    "square": input_square.text(),
+    "rooms": input_rooms.text(),
+    "bathrooms": input_bathrooms.text(),
+    "garage": input_garage.text()
+}
 
 
 window.setLayout(layout)
