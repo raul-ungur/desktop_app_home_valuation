@@ -1,13 +1,54 @@
-from PySide6.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QLineEdit, QPushButton,  QHBoxLayout
+from PySide6.QtWidgets import QApplication,QCheckBox, QLabel, QWidget, QVBoxLayout, QLineEdit, QPushButton, QHBoxLayout,  QVBoxLayout
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont
 
 import sys
+import sqlite3
+import pandas as pd
+
+conn = sqlite3.connect('houses.db')
+
+df = pd.read_sql_query("SELECT * FROM houses", conn)
 
 
 app = QApplication(sys.argv)
 window = QWidget()
+
+def estimation_price(square,rooms , bathrooms, garage ):
+    
+    value1 = float(square) * 2000
+    value2 = float(rooms) * 2000
+    value3 = float(bathrooms) * 1000
+    value4 = 0 if garage == False else  1000
+   
+    final_price = value1 + value2 +  value3 + value4
+    
+    return f"The price is: { final_price : ,} $"
+
+
+
+
+def update_house_info():
+    sq_text = input_square.text()
+    rooms_text = input_rooms.text()
+    bathrooms_text = input_bathrooms.text()
+    garage_text  = checkbox.isChecked()
+    house_info = {
+        "square":sq_text ,
+        "rooms": input_rooms.text(),
+        "bathrooms": input_bathrooms.text(),
+        "garage": checkbox.text()
+    }
+    print(house_info)
+    print(df)
+    try:
+        layout.addWidget(QLabel(str(estimation_price(sq_text, rooms_text, bathrooms_text, garage_text) ) , window))
+    except ValueError :
+        layout.addWidget(QLabel("Please enter the correct value", window ))
+    print(type(garage_text))
+    button_submit.setEnabled(False)
+
 
 window.setWindowTitle("My PySide6 App")
 window.setGeometry(550, 300, 400, 300)
@@ -41,8 +82,9 @@ input_bathrooms.setPlaceholderText("Enter Bathrooms")
 
 label_garage = QLabel(" Garage:", window)
 
-input_garage = QLineEdit()
-input_garage.setPlaceholderText("Enter (yes/no) if there is a garage")
+checkbox = QCheckBox()
+
+button_submit = QPushButton("Submit", window, clicked=lambda: update_house_info())
 
 
 layout.addWidget(label_title)
@@ -53,15 +95,8 @@ layout.addWidget(input_rooms)
 layout.addWidget(label_bathrooms)
 layout.addWidget(input_bathrooms)
 layout.addWidget(label_garage)
-layout.addWidget(input_garage)
-
-
-house_info = {
-    "square": input_square.text(),
-    "rooms": input_rooms.text(),
-    "bathrooms": input_bathrooms.text(),
-    "garage": input_garage.text()
-}
+layout.addWidget(checkbox)
+layout.addWidget(button_submit)
 
 
 window.setLayout(layout)
