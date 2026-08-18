@@ -6,6 +6,9 @@ from PySide6.QtGui import QFont
 import sys
 import sqlite3
 import pandas as pd
+from threading import Timer
+
+import requests
 
 conn = sqlite3.connect('houses.db')
 
@@ -30,17 +33,11 @@ def estimation_price(square,rooms , bathrooms, garage ):
 
 
 def update_house_info():
+    request()
     sq_text = input_square.text()
     rooms_text = input_rooms.text()
     bathrooms_text = input_bathrooms.text()
     garage_text  = checkbox.isChecked()
-    house_info = {
-        "square":sq_text ,
-        "rooms": input_rooms.text(),
-        "bathrooms": input_bathrooms.text(),
-        "garage": checkbox.text()
-    }
-    print(house_info)
     print(df)
     try:
         layout.addWidget(QLabel(str(estimation_price(sq_text, rooms_text, bathrooms_text, garage_text) ) , window))
@@ -48,6 +45,24 @@ def update_house_info():
         layout.addWidget(QLabel("Please enter the correct value", window ))
     print(type(garage_text))
     button_submit.setEnabled(False)
+
+SERVER_URL = "http://192.168.1.4:8000"
+
+def request():
+    data = {
+         "square":input_square.text() ,
+         "rooms": input_rooms.text(),
+         "bathrooms": input_bathrooms.text(),
+         "garage": checkbox.isChecked()
+    }
+    response = requests.post(
+        f"{SERVER_URL}/api/estimate", json=data
+    )
+    response.raise_for_status()
+    t = Timer(60.0, print(request()))
+    t.start
+    return response.json()
+
 
 
 window.setWindowTitle("My PySide6 App")
