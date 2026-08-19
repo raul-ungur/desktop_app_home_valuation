@@ -1,52 +1,110 @@
 from PySide6.QtWidgets import QApplication,QCheckBox, QLabel, QWidget, QVBoxLayout, QLineEdit, QPushButton, QHBoxLayout,  QVBoxLayout
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QFont
 
 import sys
-import sqlite3
-import pandas as pd
-from threading import Timer
 
 import requests
 
-conn = sqlite3.connect('houses.db')
-
-df = pd.read_sql_query("SELECT * FROM houses", conn)
 
 
 app = QApplication(sys.argv)
 window = QWidget()
 
-def estimation_price(square,rooms , bathrooms, garage ):
-    
-    value1 = float(square) * 2000
-    value2 = float(rooms) * 2000
-    value3 = float(bathrooms) * 1000
-    value4 = 0 if garage == False else  1000
-   
-    final_price = value1 + value2 +  value3 + value4
-    
-    return f"The price is: { final_price : ,} $"
+class Worker(QThread):
+    finished = Signal(dict)
+    error = Signal(str)
 
+    def run(self):
+        try:
+            result = request()
+            self.finished.emit(result)
+        except Exception as e:
+            self.error.emit(str(e))
+        
+class LoadingPopup(QWidget):
+    def __init__(self):
+        super().__init__()
 
+        self.setWindowTitle("Please wait")
+        self.setFixedSize(250,200)
 
+        layout = QVBoxLayout()
+
+        self.spinner = QLabel("◌")
+        self.spinner.setAlignment(Qt.AlignCenter)
+        self.spinner.setFont(QFont("Arial",35))
+
+        self.loading_label = QLabel("Loading...It can last up to 2 minutes.")
+        self.loading_label.setAlignment(Qt.AlignCenter)
+
+        layout.addWidget(self.spinner)
+        layout.addWidget(self.loading_label)
+
+        self.setLayout(layout)
+
+class ResultPopup(QWidget):
+    def __init__(self, message):
+        super().__init__()
+
+        self.setWindowTitle("House Estimate")
+        self.setFixedSize(400, 250)
+
+        layout = QVBoxLayout()
+
+        title = QLabel("Result")
+        title.setAlignment(Qt.AlignCenter)
+        title.setFont(QFont("Arial", 18, QFont.Bold))
+
+        text = QLabel(message)
+        text.setAlignment(Qt.AlignCenter)
+        text.setWordWrap(True)
+
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.close)
+
+        layout.addWidget(title)
+        layout.addWidget(text)
+        layout.addWidget(close_button)
+
+        self.setLayout(layout)
 
 def update_house_info():
-    request()
-    sq_text = input_square.text()
-    rooms_text = input_rooms.text()
-    bathrooms_text = input_bathrooms.text()
-    garage_text  = checkbox.isChecked()
-    print(df)
-    try:
-        layout.addWidget(QLabel(str(estimation_price(sq_text, rooms_text, bathrooms_text, garage_text) ) , window))
-    except ValueError :
-        layout.addWidget(QLabel("Please enter the correct value", window ))
-    print(type(garage_text))
     button_submit.setEnabled(False)
 
-SERVER_URL = "http://192.168.1.4:8000"
+    loading_popup = LoadingPopup()
+    loading_popup.show()
+
+    worker = Worker()
+
+    def on_finished(result):
+        loading_popup.close()
+        result_popup = ResultPopup(result["message"])
+        result_popup.show()
+
+        window.result_popup = result_popup
+        worker.deleteLater()
+
+    def on_error(error):
+        loading_popup.close()
+
+        layout.addWidget(
+            QLabel("Error: "+ error, window)
+        )
+        worker.deleteLater()
+
+    worker.finished.connect(on_finished)
+    worker.error.connect(on_error)
+
+    worker.start()
+
+    window.worker = worker
+    window.loading_popup = loading_popup
+
+
+SERVER_URL = "http://192.168.1.7:8000"
+
 
 def request():
     data = {
@@ -58,11 +116,11 @@ def request():
     response = requests.post(
         f"{SERVER_URL}/api/estimate", json=data
     )
-    response.raise_for_status()
-    t = Timer(60.0, print(request()))
-    t.start
-    return response.json()
+    print(response.status_code)
+    print(response.text)
 
+    response.raise_for_status()
+    return response.json()
 
 
 window.setWindowTitle("My PySide6 App")
