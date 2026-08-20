@@ -86,6 +86,21 @@ def update_house_info():
         window.result_popup = result_popup
         worker.deleteLater()
 
+    sq_text = input_square.text()
+    rooms_text = input_rooms.text()
+    bathrooms_text = input_bathrooms.text()
+
+    try:
+        float(sq_text)
+        int(rooms_text)
+        int(bathrooms_text)
+    except ValueError:
+        error_popup = ResultPopup(
+            "Please enter valid numeric values."
+        )
+        error_popup.show()
+        window.error_popup = error_popup
+        return
     def on_error(error):
         loading_popup.close()
 
@@ -123,6 +138,13 @@ def request():
     return response.json()
 
 
+def reset():
+    input_square.clear() ,
+    input_rooms.clear(),
+    input_bathrooms.clear(),
+    checkbox.setChecked(False)
+    button_submit.setEnabled(True)
+
 window.setWindowTitle("My PySide6 App")
 window.setGeometry(550, 300, 400, 300)
 
@@ -158,7 +180,7 @@ label_garage = QLabel(" Garage:", window)
 checkbox = QCheckBox()
 
 button_submit = QPushButton("Submit", window, clicked=lambda: update_house_info())
-
+button_reset = QPushButton("Reset ⟲", window, clicked=lambda: reset())
 
 layout.addWidget(label_title)
 layout.addWidget(label_square)
@@ -170,6 +192,8 @@ layout.addWidget(input_bathrooms)
 layout.addWidget(label_garage)
 layout.addWidget(checkbox)
 layout.addWidget(button_submit)
+layout.addWidget(button_reset)
+
 
 
 window.setLayout(layout)
