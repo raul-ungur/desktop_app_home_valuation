@@ -1,18 +1,18 @@
-PC(B) - Server and Ollama Setup Instructions
+PC_B - Server and Ollama Setup Instructions
 
-PC(B) runs:
+PC_B runs:
 
 1.  Ollama
 2.  The local LLM model
 3.  FastAPI
 4.  Uvicorn
 
-PC(B) receives requests from PC(A), sends the relevant prompt to Ollama,
+PC_B receives requests from PC_A, sends the relevant prompt to Ollama,
 and returns the LLM response.
 
 1. Install Python
 
-Install Python 3 on PC(B).
+Install Python 3 on PC_B.
 
 Verify:
 
@@ -46,7 +46,7 @@ Ollama:
 
 4. Install Ollama
 
-Install Ollama on PC(B) from the official Ollama website.
+Install Ollama on PC_B from the official Ollama website.
 
 After installation, verify that Ollama is available:
 
@@ -95,7 +95,7 @@ The server should have an endpoint similar to:
     def estimate(house: HouseRequest):
         ...
 
-The request model should match the data sent by PC(A), for example:
+The request model should match the data sent by PC_A, for example:
 
     class HouseRequest(BaseModel):
         square: str
@@ -108,9 +108,9 @@ The Ollama API is normally accessed from FastAPI using:
     OLLAMA_URL = "http://localhost:11434/api/generate"
 
 If the code uses another Ollama model, make sure the model name in the
-API request matches a model installed on PC(B).
+API request matches a model installed on PC_B.
 
-8. Find the IP address of PC(B)
+8. Find the IP address of PC_B
 
 Run:
 
@@ -122,13 +122,13 @@ Example:
 
     IPv4 Address . . . . . . . . . . : 192.168.1.20
 
-This is the address that must be inserted into the PC(A) client.
+This is the address that must be inserted into the PC_A client.
 
-For example, PC(A) should contain:
+For example, PC_A should contain:
 
     SERVER_URL = "http://192.168.1.20:8000"
 
-Replace the example IP with your own PC(B) IP address.
+Replace the example IP with your own PC_B IP address.
 
 9. Start the FastAPI server
 
@@ -144,7 +144,7 @@ The important part is:
 
     --host 0.0.0.0
 
-This allows FastAPI to accept connections coming from PC(A), rather than
+This allows FastAPI to accept connections coming from PC_A, rather than
 only accepting local connections.
 
 You should see something similar to:
@@ -155,7 +155,7 @@ Keep this terminal open while testing the application.
 
 10. Test FastAPI
 
-On PC(B), open:
+On PC_B, open:
 
     http://localhost:8000/docs
 
@@ -169,27 +169,27 @@ Example:
 
     http://192.168.1.20:8000/docs
 
-If the documentation opens from PC(A), the network connection to the
+If the documentation opens from PC_A, the network connection to the
 FastAPI server is working.
 
 11. Test the application
 
-Start the server on PC(B) first:
+Start the server on PC_B first:
 
     uvicorn server_api:app --host 0.0.0.0 --port 8000
 
-Then start the client on PC(A):
+Then start the client on PC_A:
 
     python main.py
 
 The final request flow is:
 
-    PC(A)
+    PC_A
     PySide6
        |
        | POST /api/estimate
        v
-    PC(B)
+    PC_B
     FastAPI
        |
        | POST localhost:11434/api/generate
@@ -204,18 +204,18 @@ The final request flow is:
        |
        | JSON response
        v
-    PC(A)
+    PC_A
     PySide6
 
 12. Troubleshooting
 
-PC(A) cannot connect to PC(B)
+PC_A cannot connect to PC_B
 
 Check:
 
     ping <PC_B_IP>
 
-Then verify port 8000 from PC(A):
+Then verify port 8000 from PC_A:
 
     Test-NetConnection <PC_B_IP> -Port 8000
 
@@ -238,7 +238,7 @@ The FastAPI server should normally use:
 
     http://localhost:11434
 
-because Ollama is running on PC(B).
+because Ollama is running on PC_B.
 
 Model not found
 

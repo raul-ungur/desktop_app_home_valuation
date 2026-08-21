@@ -4,17 +4,17 @@ A desktop home-valuation project built with **Python, PySide6, FastAPI, and Olla
 
 The application is divided into two parts:
 
-- **PC(A) – Client:** a PySide6 desktop application where the user enters the house information.
-- **PC(B) – Server:** a FastAPI server that receives the data from PC(A), sends a prompt to a locally running Ollama LLM, and returns the generated response to the client.
+- **PC_A – Client:** a PySide6 desktop application where the user enters the house information.
+- **PC_B – Server:** a FastAPI server that receives the data from PC_A, sends a prompt to a locally running Ollama LLM, and returns the generated response to the client.
 
 ## Current Architecture
 
 ```text
-PC(A) - PySide6
+PC_A - PySide6
     |
     | HTTP POST + JSON
     v
-PC(B) - FastAPI
+PC_B - FastAPI
     |
     | Local API request
     v
@@ -26,7 +26,7 @@ FastAPI
     |
     | JSON response
     v
-PC(A) - PySide6
+PC_A - PySide6
 ```
 
 ## What Has Been Implemented
@@ -56,8 +56,8 @@ The project currently demonstrates:
 
 For the easiest test setup, it is recommended to use **two computers connected to the same local network**:
 
-- **PC(A):** runs the PySide6 client.
-- **PC(B):** runs FastAPI and Ollama.
+- **PC_A:** runs the PySide6 client.
+- **PC_B:** runs FastAPI and Ollama.
 
 The two computers can also be replaced by a single computer for development, but the two-PC setup demonstrates the client/server architecture more clearly.
 
@@ -68,7 +68,7 @@ To test the application, follow both instruction files:
 1. `instruction_pc_A.txt` – setup and run the PySide6 client.
 2. `instruction_pc_B.txt` – setup Ollama, FastAPI, and run the server.
 
-**Important:** before starting PC(A), replace the server IP address in the client code with the local IP address of PC(B).
+**Important:** before starting PC_A, replace the server IP address in the client code with the local IP address of PC_B.
 
 Example:
 
@@ -76,7 +76,7 @@ Example:
 SERVER_URL = "http://192.168.1.7:8000"
 ```
 
-The IP address `192.168.1.7` is only an example. Your PC(B) will probably have a different address.
+The IP address `192.168.1.7` is only an example. Your PC_B will probably have a different address.
 
 ## Project Structure
 
@@ -85,11 +85,11 @@ APP_HOME_VALUATION/
 │
 ├── README.md
 │
-├── PC(A)/
+├── PC_A/
 │   ├── main.py
 │   └── instruction_pc_A.txt
 │
-└── PC(B)/
+└── PC_B/
     ├── server_api.py
     └── instruction_pc_B.txt
 ```
@@ -98,9 +98,9 @@ The exact filenames can be changed to match the current project files.
 
 ## Notes
 
-The LLM runs locally through Ollama on PC(B). Therefore, the project does not require a paid OpenAI/Anthropic/etc. API for the current implementation.
+The LLM runs locally through Ollama on PC_B. Therefore, the project does not require a paid OpenAI/Anthropic/etc. API for the current implementation.
 
-The quality and speed of the generated response depend on the local LLM model and the hardware of PC(B).
+The quality and speed of the generated response depend on the local LLM model and the hardware of PC_B.
 
 ## Future Improvements
 
